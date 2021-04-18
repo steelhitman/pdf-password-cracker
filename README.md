@@ -1,4 +1,4 @@
-# pdf-password-cracker
+# pdf-password-cracker v1.2
 
 How to Use - 
 

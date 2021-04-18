@@ -47,37 +47,47 @@ def checker(ret,filename,i,name,queue):
 		if not queue.empty():
 			break
 
-def main(filename):
+def main(filename,core):
     #filename = input("Enter filename > ")
     #filename = "D:\Projects\Bruteforcer\exec 2\dist\pan2.pdf"
     s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*"
     arr = [i for i in s]
     i = 1
     checks = 0
+    max_cpu_count = core
+    cpu_count = min(multiprocessing.cpu_count(),max_cpu_count)
     q = multiprocessing.Queue()
     while True:
         start = time.time()
         r = i
         ret = comb(arr, r)
         #print(i,len(ret))
-        #print(ret)
-        #print()
         perm_arr = []
-        part = len(ret)//4
-        #print(part-1,part*2-1,part*3-1,len(ret[:part]),len(ret[part-1:part*2-1]),len(ret[part*2-1:part*3-1]),len(ret[part*3-1:]))
-        process1 = multiprocessing.Process(target = checker,args=(ret[:part],filename,i,"1",q))
-        process2 = multiprocessing.Process(target = checker,args=(ret[part-1:part*2-1],filename,i,"2",q))
-        process3 = multiprocessing.Process(target = checker,args=(ret[part*2-1:part*3-1],filename,i,"3",q))
-        process4 = multiprocessing.Process(target = checker,args=(ret[part*3-1:],filename,i,"4",q))
-        process1.start()
-        process2.start()
-        process3.start()
-        process4.start()
-        config.processes.extend([process1,process2,process3,process4])
-        process1.join()
-        process2.join()
-        process3.join()
-        process4.join()
+        part = len(ret)/ float(cpu_count)
+        last = 0.0
+        for j in range(cpu_count):
+            array = ret[int(last):int(last+part)]
+            last+= part
+            #print(len(array),end = " ")
+            process = multiprocessing.Process(target = checker,args=(array,filename,i,j+1,q))
+            config.processes.append(process)
+            process.start()
+        #print(" ")
+        for process in config.processes:
+            process.join()
+        #process1 = multiprocessing.Process(target = checker,args=(ret[:part],filename,i,"1",q))
+        #process2 = multiprocessing.Process(target = checker,args=(ret[part-1:part*2-1],filename,i,"2",q))
+        #process3 = multiprocessing.Process(target = checker,args=(ret[part*2-1:part*3-1],filename,i,"3",q))
+        #process4 = multiprocessing.Process(target = checker,args=(ret[part*3-1:],filename,i,"4",q))
+        #process1.start()
+        #process2.start()
+        #process3.start()
+        #process4.start()
+        #config.processes.extend([process1,process2,process3,process4])
+        #process1.join()
+        #process2.join()
+        #process3.join()
+        #process4.join()
         end = time.time()
         #print(f"Time Taken in the block - {end - start}")
         if not q.empty():
@@ -87,21 +97,30 @@ def main(filename):
 
 # Driver Function
 if __name__ == "__main__":
-	multiprocessing.freeze_support()
-	print("-------------------------------------------------------------------------------------------------")
-	result = pyfiglet.figlet_format("PDF CRACKER")
-	print(result)
-	print("Made By Steel")
-	print("-------------------------------------------------------------------------------------------------")
-	if len(sys.argv) == 1:
-		filename = input("Enter filename > ")
-		start = time.time()
-		main(filename)
-		end = time.time()
-		print(f"Time taken to find the password - {end - start}")
-	else:
-		start = time.time()
-		main(sys.argv[1])
-		end = time.time()
-		print(f"Time taken to find the password - {end - start}")
-	x = input("Press any key to exit...")
+    multiprocessing.freeze_support()
+    print("-------------------------------------------------------------------------------------------------")
+    result = pyfiglet.figlet_format("PDF CRACKER")
+    print(result)
+    print("Made By Steel")
+    print("-------------------------------------------------------------------------------------------------")
+    if len(sys.argv) == 1:
+        filename = input("Enter filename > ")
+        print("Default Cores Selected - 4")
+        start = time.time()
+        main(filename,4)
+        end = time.time()
+        print(f"Time taken to find the password - {end - start}")
+    else:
+        if len(sys.argv) == 2:
+            print("Default Cores Selected - 4")
+            start = time.time()
+            main(sys.argv[1],4)
+            end = time.time()
+            print(f"Time taken to find the password - {end - start}")
+        else:
+            print("Cores Selected -",sys.argv[2])
+            start = time.time()
+            main(sys.argv[1],int(sys.argv[2]))
+            end = time.time()
+            print(f"Time taken to find the password - {end - start}")
+    x = input("Press any key to exit...")

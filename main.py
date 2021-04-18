@@ -7,6 +7,8 @@ import time
 import multiprocessing
 import threading
 
+import pyfiglet
+
 import config
 
 import pikepdf
@@ -57,12 +59,12 @@ def main(filename):
         start = time.time()
         r = i
         ret = comb(arr, r)
-        print(i,len(ret))
+        #print(i,len(ret))
         #print(ret)
         #print()
         perm_arr = []
         part = len(ret)//4
-        print(part-1,part*2-1,part*3-1,len(ret[:part]),len(ret[part-1:part*2-1]),len(ret[part*2-1:part*3-1]),len(ret[part*3-1:]))
+        #print(part-1,part*2-1,part*3-1,len(ret[:part]),len(ret[part-1:part*2-1]),len(ret[part*2-1:part*3-1]),len(ret[part*3-1:]))
         process1 = multiprocessing.Process(target = checker,args=(ret[:part],filename,i,"1",q))
         process2 = multiprocessing.Process(target = checker,args=(ret[part-1:part*2-1],filename,i,"2",q))
         process3 = multiprocessing.Process(target = checker,args=(ret[part*2-1:part*3-1],filename,i,"3",q))
@@ -77,7 +79,7 @@ def main(filename):
         process3.join()
         process4.join()
         end = time.time()
-        print(f"Time Taken in the block - {end - start}")
+        #print(f"Time Taken in the block - {end - start}")
         if not q.empty():
         	break
         ret = []
@@ -86,6 +88,11 @@ def main(filename):
 # Driver Function
 if __name__ == "__main__":
 	multiprocessing.freeze_support()
+	print("-------------------------------------------------------------------------------------------------")
+	result = pyfiglet.figlet_format("PDF CRACKER")
+	print(result)
+	print("Made By Steel")
+	print("-------------------------------------------------------------------------------------------------")
 	if len(sys.argv) == 1:
 		filename = input("Enter filename > ")
 		start = time.time()
